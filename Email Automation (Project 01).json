@@ -1,0 +1,170 @@
+{
+  "name": "Email Automation (Project 01)",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "834a1181-5858-4ce0-aeb7-ef8370a17c59",
+        "formTitle": "Contact Form",
+        "formDescription": "Send us a message",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "message",
+              "fieldType": "textarea",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "674e22ec-840a-4a45-8eae-24874695a5e8",
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 1,
+      "position": [
+        736,
+        16
+      ],
+      "webhookId": "834a1181-5858-4ce0-aeb7-ef8370a17c59"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Form Trigger').item.json.email }}",
+        "subject": "={{ $json.output.subject }}",
+        "message": "={{ $json.output.body }}",
+        "options": {}
+      },
+      "id": "2b257251-c2b6-491b-b38b-1a746d2b2bdd",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2,
+      "position": [
+        1280,
+        16
+      ],
+      "webhookId": "85ce0340-bf19-4ff7-8f25-15c2ad0bbd38",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TgS8DX0AfEAwS8U1",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a professional email assistant.\n\nWrite a short professional email reply.\n\nUser Name: {{ $json.name }}\nUser Message: {{ $json.message }}\n\nReturn output only in this JSON format:\n\n{\n  \"subject\": \"Thank you for contacting us\",\n  \"body\": \"Your email body here\"\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        944,
+        16
+      ],
+      "id": "d3c9cccc-9407-4088-afb8-75b70aef518e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        944,
+        240
+      ],
+      "id": "087ca343-951b-48ec-8fad-c532e029a220",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "ibtqQVuB5AbaPZR9",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"subject\": \"string\",\n  \"body\": \"string\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        1088,
+        240
+      ],
+      "id": "6d1709f4-2058-48de-b367-39857881d2c2",
+      "name": "Structured Output Parser"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "8837419c-697d-4f9c-9971-edb3100c00e6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fe722380a1c13008728e66f831d8103d62a78824a8b9c557cf68a7a6d242c859"
+  },
+  "id": "i920To0ikBFv73HZ",
+  "tags": []
+}
